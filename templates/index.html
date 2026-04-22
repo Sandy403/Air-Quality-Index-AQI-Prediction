@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI Health Advisor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: #38bdf8; margin-bottom: 10px; font-size: 2rem; }
+        p.subtitle { text-align: center; color: #94a3b8; margin-bottom: 30px; }
+        .card { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; background: #0f172a; color: #94a3b8; border: 1px solid #334155; }
+        .tab.active { background: #38bdf8; color: #0f172a; font-weight: bold; border: none; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 1rem; }
+        .city-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        button { width: 100%; padding: 15px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        button:hover { background: #0ea5e9; }
+        .result { display: none; }
+        .aqi-display { text-align: center; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .aqi-number { font-size: 4rem; font-weight: bold; }
+        .aqi-category { font-size: 1.3rem; margin-top: 5px; }
+        .advice-box { background: #0f172a; border-radius: 8px; padding: 20px; white-space: pre-line; line-height: 1.8; color: #e2e8f0; }
+        .loading { text-align: center; color: #38bdf8; display: none; padding: 20px; font-size: 1.1rem; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌬️ AQI Health Advisor</h1>
+        <p class="subtitle">AI-powered air quality analysis and personalized health advice</p>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('manual')">Manual Input</div>
+                <div class="tab" onclick="switchTab('city')">Search by City</div>
+            </div>
+
+            <!-- Manual Input Panel -->
+            <div class="panel active" id="manualPanel">
+                <div class="grid">
+                    <div><label>PM2.5 (µg/m³)</label><input type="number" id="pm25" value="45"></div>
+                    <div><label>PM10 (µg/m³)</label><input type="number" id="pm10" value="80"></div>
+                    <div><label>NO2 (µg/m³)</label><input type="number" id="no2" value="20"></div>
+                    <div><label>CO (mg/m³)</label><input type="number" id="co" value="1.2"></div>
+                    <div><label>SO2 (µg/m³)</label><input type="number" id="so2" value="10"></div>
+                    <div><label>O3 (µg/m³)</label><input type="number" id="o3" value="30"></div>
+                    <div><label>City</label><input type="text" id="city" value="Chennai"></div>
+                    <div><label>Your Age</label><input type="number" id="age" value="25"></div>
+                    <div><label>Health Condition</label><input type="text" id="condition" value="none"></div>
+                </div>
+                <button onclick="predictManual()">Analyze Air Quality & Get Advice</button>
+            </div>
+
+            <!-- City Search Panel -->
+            <div class="panel" id="cityPanel">
+                <div class="city-row">
+                    <div><label>City Name</label><input type="text" id="citySearch" placeholder="e.g. Mumbai" value="Chennai"></div>
+                    <div><label>Your Age</label><input type="number" id="cityAge" value="25"></div>
+                    <div><label>Health Condition</label><input type="text" id="cityCondition" value="none"></div>
+                </div>
+                <button onclick="predictCity()">🔍 Fetch Live AQI & Get Advice</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">⏳ Analyzing air quality and generating health advice...</div>
+
+        <div class="card result" id="result">
+            <div class="aqi-display" id="aqiDisplay">
+                <div class="aqi-number" id="aqiNumber"></div>
+                <div class="aqi-category" id="aqiCategory"></div>
+            </div>
+            <h3 style="margin-bottom:10px; color:#38bdf8;">🤖 AI Health Advice</h3>
+            <div class="advice-box" id="adviceBox"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            if(tab === 'manual') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('manualPanel').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('cityPanel').classList.add('active');
+            }
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function showResult(result) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('aqiNumber').textContent = result.aqi;
+            document.getElementById('aqiCategory').textContent = result.category;
+            document.getElementById('aqiDisplay').style.background = result.color;
+            document.getElementById('aqiDisplay').style.color = '#000';
+            document.getElementById('adviceBox').textContent = result.advice;
+        }
+
+        async function predictManual() {
+            const data = {
+                pm25: document.getElementById('pm25').value,
+                pm10: document.getElementById('pm10').value,
+                no2: document.getElementById('no2').value,
+                co: document.getElementById('co').value,
+                so2: document.getElementById('so2').value,
+                o3: document.getElementById('o3').value,
+                city: document.getElementById('city').value,
+                age: document.getElementById('age').value,
+                condition: document.getElementById('condition').value
+            };
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            showResult(await response.json());
+        }
+
+        async function predictCity() {
+            const data = {
+                city: document.getElementById('citySearch').value,
+                age: document.getElementById('cityAge').value,
+                condition: document.getElementById('cityCondition').value
+            };
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            const response = await fetch('/city', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            showResult(await response.json());
+        }
+    </script>
+</body>
+</html>
