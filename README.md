@@ -1,105 +1,97 @@
-# 🌍 Air Quality Index (AQI) Prediction  
+# 🌬️ AQI Health Advisor
 
-## 📌 Project Overview  
-Air pollution is a critical environmental issue, and predicting air quality is essential for public health and policymaking.  
-This project leverages **Machine Learning (ML) techniques** to forecast **Air Quality Index (AQI)** based on key environmental pollutants.  
-The models implemented include **Linear Regression, Random Forest, and XGBoost**, with **XGBoost** emerging as the best-performing model.  
+An AI-powered Air Quality Index (AQI) prediction system that provides personalized health advice based on real-time air pollution data.
 
----
-
-## 📂 Project Resources  
-🔹 **Dataset (CSV File)**: [Download city_day.csv](https://github.com/SunnyRao07/Air-Quality-Index-AQI-Prediction/blob/main/city_day.csv)  
-🔹 **Dataset (Kaggle Link)**: [View on Kaggle](https://www.kaggle.com/code/anjusunilkumar/air-quality-index-prediction?select=city_day.csv)  
-🔹 **Project Code (.ipynb)**: [View Jupyter Notebook](https://github.com/SunnyRao07/Air-Quality-Index-AQI-Prediction/blob/main/Code.ipynb)  
-🔹 **Presentation (PPTX File)**: [Download Project Report](https://github.com/SunnyRao07/Air-Quality-Index-AQI-Prediction/blob/main/Report.pptx)  
+> **SDG 3: Good Health and Well-being** — Helping people make informed decisions about their health based on air quality conditions.
 
 ---
 
-## 📊 Dataset Overview  
-The dataset used for this project contains **29,531 records** and **16 features**, including:  
-- **Pollutants**: PM2.5, PM10, NO₂, SO₂, CO, O₃, Benzene, etc.  
-- **Date & City**: Identifying the location and time of recording.  
-- **AQI (Target Variable)**: Measures pollution severity and categorizes it into buckets (Good, Moderate, Poor, etc.).  
+## 🚀 Features
+
+- 📊 **ML-based AQI Prediction** — Random Forest model trained on Indian city air quality data
+- 🌍 **Live Pollutant Data** — Real-time data fetched from OpenWeatherMap API
+- 🤖 **AI Health Advice** — Personalized recommendations powered by Groq LLM (LLaMA 3.1)
+- 🏙️ **City Search** — Enter any Indian city and get instant AQI + health advice
+- 🐳 **Dockerized** — Fully containerized for easy deployment anywhere
 
 ---
 
-## 🛠 Data Preprocessing  
-✔️ **Handling Missing Values**:  
-- Removed rows with missing AQI values.  
-- Imputed missing pollutant values using **mean imputation**.  
-
-✔️ **Feature Scaling**:  
-- Used **StandardScaler** to standardize numerical features (zero mean, unit variance).  
-
-✔️ **Feature Selection**:  
-- Analyzed **feature correlation** using a **heatmap** to determine the most influential pollutants.  
-- **PM2.5** (0.65) and **CO** (0.68) showed the highest correlation with AQI.  
-
----
-
-## 🤖 Models Used  
-The project explores different regression models to predict AQI:  
-
-### 1️⃣ **Linear Regression**  
-🔹 Simple and interpretable but struggles with complex patterns.  
-
-### 2️⃣ **Random Forest Regressor**  
-🔹 Uses multiple decision trees for better accuracy and handles non-linearity.  
-
-### 3️⃣ **XGBoost Regressor** (🏆 Best Model)  
-✅ More accurate, faster, and better at handling missing data than Random Forest.  
-✅ Captures complex relationships effectively with boosting techniques.  
-✅ Reduces overfitting and performs well on large datasets.  
+## 🏗️ Architecture
+User Input (City Name)
+↓
+OpenWeatherMap API → Real Pollutant Data (PM2.5, PM10, NO2, CO, SO2, O3)
+↓
+Random Forest ML Model → AQI Score Prediction
+↓
+Groq LLM (LLaMA 3.1) → Personalized Health Advice
+↓
+Flask Web App → Clean UI Response
 
 ---
 
-## 📈 Model Evaluation  
-To measure performance, we used the following metrics:  
+## 🛠️ Tech Stack
 
-📌 **Mean Absolute Error (MAE)** – Lower values indicate better accuracy.  
-📌 **Root Mean Squared Error (RMSE)** – Penalizes large prediction errors.  
-📌 **R² Score (Coefficient of Determination)** – Measures variance explained by the model.  
+| Component | Technology |
+|---|---|
+| Backend | Python, Flask |
+| ML Model | Scikit-learn, Random Forest |
+| Dataset | Indian City Air Quality (city_day.csv) |
+| LLM | Groq API — LLaMA 3.1 8B |
+| Live Data | OpenWeatherMap Air Pollution API |
+| Containerization | Docker |
+| Version Control | Git, GitHub |
 
-📌 **Model Comparison**:  
+---
+
+## 🐳 Run with Docker
+
+```bash
+docker pull nightfury192/aqi-health-advisor
+docker run -p 5000:5000 --env-file .env nightfury192/aqi-health-advisor
+```
+
+---
+
+## ⚙️ Run Locally
+
+```bash
+git clone https://github.com/Sandy403/Air-Quality-Index-AQI-Prediction.git
+cd Air-Quality-Index-AQI-Prediction
+pip install -r requirements.txt
+python app.py
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file with:
+
+OPENWEATHER_API_KEY=your_openweather_key_here
+GROQ_API_KEY=your_groq_key_here
+
+---
+
+## 📦 DockerHub
+
+→ https://hub.docker.com/r/nightfury192/aqi-health-advisor
+
+---
+
+## 📊 Model Performance
+
 | Model | MAE | RMSE | R² Score |
-|--------|------|------|---------|
-| **Linear Regression** | High | High | Low |
-| **Random Forest** | Moderate | Moderate | Moderate |
-| **XGBoost** 🏆 | Low | Low | High |
+|---|---|---|---|
+| Linear Regression | 31.20 | 59.10 | 0.809 |
+| Random Forest | 20.59 | 40.48 | 0.910 |
+| XGBoost | 21.83 | 42.38 | 0.901 |
+
+✅ Random Forest selected as best model (R² = 0.91)
 
 ---
 
-## 🔧 Hyperparameter Tuning  
-To improve the **XGBoost** model, we optimized the following parameters using **GridSearchCV**:  
-- `n_estimators`: [50, 100, 200]  
-- `learning_rate`: [0.01, 0.1, 0.2]  
-- `max_depth`: [3, 5, 7]  
+## 👨‍💻 Author
 
-✅ **Best Configuration:**  
-`learning_rate = 0.2, max_depth = 5, n_estimators = 100`  
-
-The final model was saved using `joblib` for future predictions.  
-
----
-
-## 📌 Results & Predictions  
-- The trained **XGBoost Regressor** effectively predicts AQI values for unseen data.  
-- A **line plot** was used to visualize **Actual vs. Predicted AQI**, confirming the model's accuracy.  
-
----
-
-## 🚀 Future Scope  
-🔹 Improve accuracy using **Deep Learning (LSTMs, CNNs)**.  
-🔹 Integrate real-time AQI data & meteorological features.  
-🔹 Develop **AI-powered dashboards & mobile apps** for real-time AQI tracking.  
-
----
-
-## 🏆 Individual Contribution  
-This was a group project, but I **contributed to the entire project**, including:  
-✔️ Data Preprocessing & Cleaning  
-✔️ Model Implementation & Evaluation  
-✔️ Hyperparameter Tuning & Optimization  
-✔️ Model Interpretation & Documentation  
-
----
+**Santhosh Kumar**
+CSE AIML A
+RA2311026050192
